@@ -1,0 +1,9 @@
+build
+*.pyc
+target
+*.ipynb
+.ipynb_checkpoints
+.DS_Store
+sync-config.json
+data
+.vscode

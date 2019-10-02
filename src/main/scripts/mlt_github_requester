@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import os
+import sys
+import getopt
+
+from apirequester.githubrequester import github_requester
+
+def get_responses(github_access_token, keywords):
+    github_response = github_requester(github_access_token, keywords)
+
+    for url, stars in github_response.items():
+        print(f'{url}, {stars} stars')
+
+
+def main(argv):
+    github_access_token = '' # please set here your github_access_token
+    keywords = ''
+    
+    try:
+        opts, argv = getopt.getopt(argv, "hga:k", ["github_access_token=", "keywords="])
+    
+    except getopt.GetoptError:
+        print("mlt_github_requester -ga <github_access_token> -k <keywords>")
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt == "-h":
+            print("mlt_github_requester -ga <github_access_token> -k <keywords>")
+        elif opt in ("-ga", "github_access_token="):
+            github_access_token = arg
+        elif opt in ("-k", "keywords"):
+            keywords = ' '.join(argv)
+
+    get_responses(github_access_token, keywords)
+    
+
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
