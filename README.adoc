@@ -1,0 +1,35 @@
+# search-api-requester
+API requester for recommendation system
+
+## Development 
+Checkout github repository and change directory to repository
+
+Please set your github_access_token in ```src/main/scripts/mlt_github_requester``` for initial development and testing execution as this is initial code and will be updated later
+
+create conda environment change to that environment
+
+```
+conda create -n py36 python=3.6
+source activate py36
+```
+
+Intsall pybuilder
+
+```
+pip install pybuilder
+```
+
+Execute following command to build the python egg
+
+```
+pyb && pyb -X &&  easy_install target/dist/*/dist/*.tar.gz
+```
+
+Testing example
+
+```
+mlt_github_requester -k 'machine learning'
+```
+
+## Notes
+Please check the ```src/main/scripts/mlt_github_requester``` and ```src/main/python/apirequester/githubrequester.py``` for example and also when testing, please build the python egg  ```pyb && pyb -X &&  easy_install target/dist/*/dist/*.tar.gz``` so that egg will be build for testing. Please ask if any question. Still under development so not the production level code. pypi installation setup will be done later
