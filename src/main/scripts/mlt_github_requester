@@ -16,7 +16,7 @@ def get_responses(github_access_token, keywords):
 
 
 def main(argv):
-    github_access_token = '1080fd3a4b929fb08161ea1190383e0a0c61d0e1' # please set here your github_access_token
+    github_access_token = '' # please set here your github_access_token
     keywords = ''
     
     try:
