@@ -1,15 +1,10 @@
 from mlsearch.config import Config
 from mlsearch.protocol import Protocol
 from github import Github
+from requests.auth import HTTPBasicAuth
 import json
+import requests
 # import scholarly
-
-try:
-    from botocore.vendored import requests
-    from botocore.vendored.requests.auth import HTTPBasicAuth
-except ModuleNotFoundError:
-    import requests
-    from requests.auth import HTTPBasicAuth
 
 
 class APIRequest():
