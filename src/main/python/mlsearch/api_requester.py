@@ -63,11 +63,10 @@ class APIRequest():
         """Validate user input data."""
 
         for item, typ in self.params_model.items():
-            if item in self.params.keys():
-                if not typ == type(self.params[item]):
-                    raise TypeError(
-                        f'Invalid type for {item}. {typ} is expected but ' 
-                        f'{type(self.params[item])} is given.')
+            if item in self.params.keys() and not typ == type(self.params[item]):
+                raise TypeError(
+                    f'Invalid type for {item}. {typ} is expected but ' 
+                    f'{type(self.params[item])} is given.')
 
         if self.params['source'] not in self._config.VALID_API_SOURCE:
             raise ValueError(
