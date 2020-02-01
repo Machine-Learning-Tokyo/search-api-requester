@@ -16,6 +16,9 @@ ap.add_argument('-q', '--query', required=True, help="Keyword for searching.")
 ap.add_argument('-i', '--init_idx', required=True, help="Initial index for pagination.")
 ap.add_argument('-c', '--count', required=True, help="Total number of results to be fetched.")
 ap.add_argument('-s', '--source', required=True, help="Source API to be looking for.")
+ap.add_argument('-ck', '--cookies', required=True, help="Cookies of current user.")
+ap.add_argument('-ip', '--ip_address', required=True, help="IP address of current user.")
+ap.add_argument('-tm', '--timestamp', required=True, help="Timestamp of requesting API.")
 ap.add_argument('-u', '--pwc_user', required=False, help="Paper with code repository user name.")
 ap.add_argument('-p', '--pwc_password', required=False, help="Paper with code repository password.")
 ap.add_argument('-t', '--github_acc_token', required=False, help="Github access token.")
@@ -23,7 +26,11 @@ args = vars(ap.parse_args())
 
 def main(event):
     try:
-        param_names = ['query', 'init_idx', 'count', 'source']
+        param_names = [
+            'query', 'init_idx',
+            'count', 'source',
+            'cookies', 'ip_address',
+            'timestamp']
         response_msg = hp.response('success', 200)
         
         if hp.is_valid_parameters(event, param_names):
@@ -54,7 +61,10 @@ if __name__ == "__main__":
         'query': args['query'],
         'init_idx': args['init_idx'],
         'count': args['count'],
-        'source': args['source']
+        'source': args['source'],
+        'cookies': args['cookies'],
+        'ip_address': args['ip_address'],
+        'timestamp': args['timestamp']
     }
 
     if args['pwc_user']:
