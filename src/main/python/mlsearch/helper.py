@@ -34,8 +34,7 @@ def parse_parameters(event):
     :return:            dict(
                             'query', 'init_idx',
                             'count', 'source',
-                            'cookies', 'ip_address',
-                            'timestamp')
+                            'cookies', 'timestamp')
     """
     try:
         param = dict()
@@ -44,7 +43,6 @@ def parse_parameters(event):
         param['count'] = int(event['count'])
         param['source'] = event['source']
         param['cookies'] = event['cookies']
-        param['ip_address'] = event['ip_address']
         param['timestamp'] = event['timestamp']
         
         if param['init_idx'] >= 0 and param['count'] > 0:
