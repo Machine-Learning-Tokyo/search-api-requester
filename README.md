@@ -26,7 +26,10 @@ Required Parameters:
                         Total number of results to be fetched.
   -s SOURCE, --source SOURCE
                         Source API to be looking for.
-
+  -ck COOKIES, --cookies COOKIES
+                        Cookies of current user.
+  -tm TIMESTAMP, --timestamp TIMESTAMP
+                        Timestamp of requesting API.
 Optional Parameters:
 
   -u PWC_USER, --pwc_user PWC_USER
@@ -40,6 +43,7 @@ Optional Parameters:
 <hr>
 <b>Using as an API<b>
 <br>
+
 ```python
 from mlsearch.api_requester import APIRequest
 
