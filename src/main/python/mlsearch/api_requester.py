@@ -122,7 +122,7 @@ class APIRequest():
                     'title': item.get('paper_title', None),
                     'description': item.get('paper_abstract', None),
                     'paper_url': item.get('paper_url', None),
-                    'num_of_implementations': item.get('num_of_implementations', None),
+                    'num_of_implementations': item.get('number_of_implementations', None),
                     'tasks': item.get('tasks', None),
                     'paper_conference': item.get('paper_conference', None),
                     'repository_url': item.get('repository_url', None),
@@ -130,6 +130,7 @@ class APIRequest():
                     'repository_framework': item.get('repository_framework', None),
                     'repository_stars': item.get('repository_stars', None),
                     'paper_published': item.get('paper_published', None),
+                    'pwc_url': item.get('pwc_url', ''),
                     'source': self.params.get('source', '')
                 }
                 results.append(Protocol(data))
