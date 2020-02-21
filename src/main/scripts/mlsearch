@@ -3,6 +3,7 @@ import argparse
 import sys
 import pprint
 import os
+import json
 
 # For debugging purpose
 if 'mlsearch' not in sys.modules:
@@ -24,6 +25,12 @@ ap.add_argument('-t', '--github_acc_token', required=False, help="Github access 
 args = vars(ap.parse_args())
 
 def main(event):
+    headers = {
+            'Access-Control-Allow-Origin': '*',
+            'X-Requested-With': '*',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        }
     try:
         param_names = [
             'query', 'init_idx',
@@ -41,10 +48,10 @@ def main(event):
                     api_request.github_acc_token = event['github_acc_token']
                 data = api_request.fetch_data()
                 response_msg = hp.response(
-                    data.get('content',''),
-                    data.get('response_code'),
-                    dict({'has_next_page': data.get('has_next_page', False)}))
-                
+                    message=data.get('content',''),
+                    status_code=data.get('response_code'),
+                    headers=headers,
+                    optional_attributes={'has_next_page': data.get('has_next_page', False)})
                 return response_msg
 
         response_msg = hp.response('Invalid parameters.', 400)
