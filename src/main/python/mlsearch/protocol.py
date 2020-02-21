@@ -13,7 +13,7 @@ class Protocol():
             'num_of_implementations', 'tasks',
             'paper_conference', 'repository_url',
             'repository_name', 'repository_framework',
-            'repository_stars',
+            'repository_stars', 'pwc_url',
             
             # Github
             'description', 'private',
@@ -31,26 +31,29 @@ class Protocol():
         for param in kwargs:
             if param not in param_list:
                 raise AttributeError('{} is not a valid parameter.'.format(param))
-        
+
         self.title = kwargs.get('title', None)
         self.paper_published = kwargs.get('paper_published', None)
         self.paper_url = kwargs.get('paper_url', None)
         self.num_of_implementations = kwargs.get('num_of_implementations', None)
         self.tasks = kwargs.get('tasks', None)
         self.paper_conference = kwargs.get('paper_conference', None)
+        self.repository_url = kwargs.get('repository_url', None)
+        self.repository_name = kwargs.get('repository_name', None)
         self.repository_framework = kwargs.get('repository_framework', None)
         self.repository_stars = kwargs.get('repository_stars', None)
         self.description = kwargs.get('description', None)
         self.private = kwargs.get('private', None)
         self.fork = kwargs.get('fork', None)
         self.updated_at = kwargs.get('updated_at', None)
-        self.stargazers_count = kwargs.get('stargazers', None)
+        self.stargazers_count = kwargs.get('stargazers_count', None)
         self.watchers_count = kwargs.get('watchers_count', None)
         self.language = kwargs.get('language', None)
         self.forks_count = kwargs.get('forks_count', None)
         self.partners_v1 = kwargs.get('partners_v1', None)
         self.instructors_v1 = kwargs.get('instructors_v1', None)
         self.source = kwargs.get('source', None)
+        self.pwc_url = kwargs.get('pwc_url', None)
     
     def to_JSON(self):
         """Transform the Protocol object to JSON object."""
