@@ -1,3 +1,5 @@
+import json
+
 def is_valid_parameters(event, param_names):
     """
     Check whether the item in param_names exist in event dictionary.
@@ -12,12 +14,13 @@ def is_valid_parameters(event, param_names):
             return False
     return True
 
-def response(message, status_code, optional_attributes=dict()):
+def response(message, status_code, headers=dict(), optional_attributes=dict()):
     """
     Response message for the request.
     
     :param message:         The response message.
     :param status_code:     The response status.
+    :headers:               The header of the response.
     :optional_attributes:   The dict key value used by backend to communicate
                             with front end.
     
@@ -25,8 +28,8 @@ def response(message, status_code, optional_attributes=dict()):
     """
     return {
         'statusCode': status_code,
-        'body': message,
-        'optional_attributes': optional_attributes
+        'body': json.dumps({'content': message, 'optional_attributes': optional_attributes}),
+        'headers': headers
     }
 
 def parse_parameters(event):
