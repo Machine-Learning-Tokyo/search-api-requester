@@ -29,7 +29,10 @@ class APIRequest():
         # Validate Params
         self._validate_params()
         # Response data
-        self.data = {'response_code': 201, 'content': None}
+        self.data = {
+            'response_code': 201,
+            'content': None,
+            'has_next_page': False}
 
     @property
     def github_acc_token(self):
@@ -72,6 +75,18 @@ class APIRequest():
             raise ValueError(
                 f"Invalid value for {self.params['source']}. "
                 f"Expected values are {self._config.VALID_API_SOURCE}")
+
+    def _is_valid_pagination(self, max_count=0):
+        """Validate pagination."""
+        # If init_idx is greater than acutal content
+        if max_count == 0 or self.params['init_idx'] > max_count:
+            return False
+
+        # Update pagination flag.
+        self.data['has_next_page'] = self.params['init_idx'] + \
+            self.params['count'] < max_count
+
+        return True
                 
     def _fetch_github(self) -> [Protocol]:
         """Fetch Github Repository"""
@@ -81,9 +96,12 @@ class APIRequest():
         responses = github.search_repositories(query, 'stars', 'desc')
         results = []
 
+        if not self._is_valid_pagination(responses.totalCount):
+            return
+
         for response in responses[
-            self.params['init_idx']:self.params['init_idx'] + \
-            self.params['count']]:
+            self.params['init_idx']:min(self.params['init_idx'] + \
+            self.params['count'], responses.totalCount)]:
 
             data = {
                 'repository_url' : response.clone_url.replace('.git', ''),
@@ -114,8 +132,13 @@ class APIRequest():
 
         if query_result.status_code == 200:
             content = json.loads(query_result.content)
-            content = content[self.params['init_idx']:self.params['init_idx'] + \
-                                self.params['count']]
+            max_content = len(content)
+            if not self._is_valid_pagination(max_content):
+                return
+
+            content = content[
+                self.params['init_idx']:min(self.params['init_idx'] + \
+                                self.params['count'], max_content)]
 
             for item in content:
                 data = {

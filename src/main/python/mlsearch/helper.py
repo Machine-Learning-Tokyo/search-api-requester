@@ -12,18 +12,21 @@ def is_valid_parameters(event, param_names):
             return False
     return True
 
-def response(message, status_code):
+def response(message, status_code, optional_attributes=dict()):
     """
     Response message for the request.
     
-    :param message:     The response message.
-    :param status_code: The response status.
+    :param message:         The response message.
+    :param status_code:     The response status.
+    :optional_attributes:   The dict key value used by backend to communicate
+                            with front end.
     
-    :return:            The dic('statusCode', 'body')
+    :return:                The dic('statusCode', 'body', 'optional_attributes')
     """
     return {
         'statusCode': status_code,
-        'body': message
+        'body': message,
+        'optional_attributes': optional_attributes
     }
 
 def parse_parameters(event):

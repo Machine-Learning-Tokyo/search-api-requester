@@ -40,7 +40,10 @@ def main(event):
                 if 'github_acc_token' in event:
                     api_request.github_acc_token = event['github_acc_token']
                 data = api_request.fetch_data()
-                response_msg = hp.response(data.get('content',''), data.get('response_code'))
+                response_msg = hp.response(
+                    data.get('content',''),
+                    data.get('response_code'),
+                    dict({'has_next_page': data.get('has_next_page', False)}))
                 
                 return response_msg
 
