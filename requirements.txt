@@ -1,2 +1,4 @@
 PyGithub==1.43.8
 pybuilder
+requests
+google-api-python-client

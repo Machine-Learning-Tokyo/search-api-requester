@@ -32,12 +32,16 @@ Required Parameters:
                         Timestamp of requesting API.
 Optional Parameters:
 
-  -u PWC_USER, --pwc_user PWC_USER
+  -pu PWC_USER, --pwc_user PWC_USER
                         Paper with code repository user name.
-  -p PWC_PASSWORD, --pwc_password PWC_PASSWORD
+  -pp PWC_PASSWORD, --pwc_password PWC_PASSWORD
                         Paper with code repository password.
-  -t GITHUB_ACC_TOKEN, --github_acc_token GITHUB_ACC_TOKEN
+  -gt GITHUB_ACC_TOKEN, --github_acc_token GITHUB_ACC_TOKEN
                         Github access token.
+  -yk YOUTUBE_DEV_KEY, --youtube_dev_key YOUTUBE_DEV_KEY
+                        Youtube developer key.
+  -ynpt NEXT_PAGE_TOKEN, --y_next_page_token NEXT_PAGE_TOKEN
+                        Next page token for Youtube API.
 ```
 
 <hr>
@@ -51,4 +55,5 @@ api_request = APIRequest(source, query,
     init_idx, count)
 api_request.pwc_auth_info = ('user_name', 'password')
 api_request.github_acc_token = 'token'
+api_request.youtube_developer_key = 'your_key'
 ```
