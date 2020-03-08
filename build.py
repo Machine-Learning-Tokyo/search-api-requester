@@ -18,3 +18,4 @@ def set_properties(project):
     project.build_depends_on("mock")
     project.build_depends_on("requests")
     project.build_depends_on("pygithub")
+    project.build_depends_on("google-api-python-client")

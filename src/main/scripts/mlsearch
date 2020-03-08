@@ -22,6 +22,8 @@ ap.add_argument('-tm', '--timestamp', required=True, help="Timestamp of requesti
 ap.add_argument('-u', '--pwc_user', required=False, help="Paper with code repository user name.")
 ap.add_argument('-p', '--pwc_password', required=False, help="Paper with code repository password.")
 ap.add_argument('-t', '--github_acc_token', required=False, help="Github access token.")
+ap.add_argument('-yk', '--youtube_dev_key', required=False, help="Youtube developer key.")
+ap.add_argument('-np', '--next_page_token', required=False, help="Next page token for Youtube API.")
 args = vars(ap.parse_args())
 
 def main(event):
@@ -35,23 +37,33 @@ def main(event):
         param_names = [
             'query', 'init_idx',
             'count', 'source',
-            'cookies', 'timestamp']
+            'cookies', 'timestamp',
+            'next_page_token']
         response_msg = hp.response('success', 200)
-        
         if hp.is_valid_parameters(event, param_names):
             params = hp.parse_parameters(event)
             if params.values():
-                api_request = APIRequest(params['source'], params['query'], params['init_idx'], params['count'])
+                api_request = APIRequest(
+                    params['source'], 
+                    params['query'], 
+                    params['init_idx'], 
+                    params['count'],
+                    params['next_page_token'])
                 if 'pwc_user'in event and 'pwc_password' in event:
                     api_request.pwc_auth_info = (event['pwc_user'], event['pwc_password'])
                 if 'github_acc_token' in event:
                     api_request.github_acc_token = event['github_acc_token']
+                if 'youtube_developer_key' in event:
+                    api_request.youtube_developer_key = event['youtube_developer_key']
                 data = api_request.fetch_data()
                 response_msg = hp.response(
                     message=data.get('content',''),
                     status_code=data.get('response_code'),
                     headers=headers,
-                    optional_attributes={'has_next_page': data.get('has_next_page', False)})
+                    optional_attributes={
+                        'has_next_page': data.get('has_next_page', False),
+                        'next_page_token': data.get('next_page_token', None)})
+
                 return response_msg
 
         response_msg = hp.response('Invalid parameters.', 400)
@@ -59,6 +71,7 @@ def main(event):
 
     except (ValueError, TypeError):
         response_msg = hp.response('Invalid parameters.', 400)
+        return response_msg
 
     except Exception as ex:
         response_msg = hp.response(str(ex), 500)
@@ -71,7 +84,8 @@ if __name__ == "__main__":
         'count': args['count'],
         'source': args['source'],
         'cookies': args['cookies'],
-        'timestamp': args['timestamp']
+        'timestamp': args['timestamp'],
+        'next_page_token': args['next_page_token']
     }
 
     if args['pwc_user']:
@@ -80,6 +94,8 @@ if __name__ == "__main__":
         event['pwc_password'] = args['pwc_password']
     if args['github_acc_token']:
         event['github_acc_token'] = args['github_acc_token']
+    if args['youtube_dev_key']:
+        event['youtube_developer_key'] = args['youtube_dev_key']
 
     result = main(event)
     pp = pprint.PrettyPrinter(indent=2)

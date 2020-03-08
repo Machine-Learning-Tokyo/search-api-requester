@@ -2,6 +2,7 @@ from mlsearch.config import Config
 from mlsearch.protocol import Protocol
 from github import Github
 from requests.auth import HTTPBasicAuth
+import googleapiclient.discovery
 import json
 import requests
 # import scholarly
@@ -10,7 +11,7 @@ import requests
 class APIRequest():
     """For handling the different Valid API requests."""
 
-    def __init__(self, source, query, init_idx, count):
+    def __init__(self, source, query, init_idx, count, next_page_token=None):
         """
         Initialization for the class.
 
@@ -18,10 +19,12 @@ class APIRequest():
         :param  query:      The query for searching.
         :param  init_idx:   The initial pagination index.
         :param  count:      The number of records to be fetched.
+        :param  next_page_token: The current page token for youtube API.
         """
 
         self.params = {'query':query, 'init_idx':init_idx, 
-                            'count':count, 'source': source}
+                            'count':count, 'source': source,
+                            'next_page_token': next_page_token}
         self.params_model = {'query':str, 'init_idx':int, 
                                   'count':int}
         # Load the configuration file
@@ -32,7 +35,8 @@ class APIRequest():
         self.data = {
             'response_code': 201,
             'content': None,
-            'has_next_page': False}
+            'has_next_page': False,
+            'next_page_token': None}
 
     @property
     def github_acc_token(self):
@@ -43,6 +47,14 @@ class APIRequest():
         if access_token:
             self._config.GITHUB_ACC_TOKEN = access_token
 
+    @property
+    def youtube_developer_key(self):
+        return self._config.YOUTUBE_DEVELOPER_KEY
+
+    @youtube_developer_key.setter
+    def youtube_developer_key(self, developer_key):
+        if developer_key:
+            self._config.YOUTUBE_DEVELOPER_KEY = developer_key
 
     @property
     def pwc_auth_info(self):
@@ -70,7 +82,7 @@ class APIRequest():
                 raise TypeError(
                     f'Invalid type for {item}. {typ} is expected but ' 
                     f'{type(self.params[item])} is given.')
-
+        
         if self.params['source'] not in self._config.VALID_API_SOURCE:
             raise ValueError(
                 f"Invalid value for {self.params['source']}. "
@@ -118,8 +130,8 @@ class APIRequest():
             }
             results.append(Protocol(data))
             
-            self.data['response_code'] = 200
-            self.data['content'] = [proto.to_JSON() for proto in results]
+        self.data['response_code'] = 200
+        self.data['content'] = [proto.to_JSON() for proto in results]
 
     def _fetch_paperwithcode(self) -> [Protocol]:
         """Fetch Paper with Code Repository"""
@@ -161,7 +173,58 @@ class APIRequest():
             self.data['content'] = [proto.to_JSON() for proto in results]
 
         self.data['response_code'] = query_result.status_code
-        
+    
+    def _fetch_youtube(self, next_page_token=None) -> [Protocol]:
+        """Fetch the Youtube Repository"""
+        results = []
+        youtube = googleapiclient.discovery.build(
+            self._config.YOUTUBE_SERVICE_NAME, 
+            self._config.YOUTUBE_API_VERSION, 
+            developerKey = self._config.YOUTUBE_DEVELOPER_KEY)
+        request = youtube.search().list(
+            part=self._config.YOUTUBE_PART,
+            maxResults=self.params['count'],
+            order=self._config.YOUTUBE_ORDER,
+            q=self.params['query'],
+            safeSearch=self._config.YOUTUBE_SAFESEARCH,
+            pageToken=next_page_token
+        )
+        response = request.execute()
+
+        if 'items' in response and len(response['items']) > 0:
+            for item in response['items']:
+                data = {
+                    'video_id': item.get(
+                        'id', dict({'videoId': None})
+                        ).get('videoId', None),
+                    'title': item.get(
+                        'snippet', dict({'title': None})
+                        ).get('title', None),
+                    'description': item.get(
+                        'snippet',dict({'description': None})
+                        ).get('description', None),
+                    'channel_id': item.get(
+                        'snippet',dict({'channelId': None})
+                        ).get('channelId', None),
+                    'channel_title': item.get(
+                        'snippet',dict({'channelTitle': None})
+                        ).get('channelTitle', None),
+                    'live_broadcast_content': item.get(
+                        'snippet',dict({'liveBroadcastContent': None})
+                        ).get('liveBroadcastContent', None),
+                    'published_datetime': item.get(
+                        'snippet',dict({'publishedAt': None})
+                        ).get('publishedAt', None),
+                    'thumbnails': item.get(
+                        'snippet',dict({'thumbnails': None})
+                        ).get('thumbnails', None),
+                }
+                results.append(Protocol(data))
+            self.data['next_page_token'] = response.get('nextPageToken', None)
+            self.data['content'] = [proto.to_JSON() for proto in results]
+            self.data['has_next_page'] = response.get('pageInfo', dict({'totalResults':0})).get('totalResults', 0) > 0
+        self.data['response_code'] = 200
+
     def fetch_data(self) -> json:
         """Fetch the data from designated API source."""
 
@@ -170,7 +233,10 @@ class APIRequest():
                 self._fetch_paperwithcode()
 
             if self.params.get('source', '') == 'github':
-                responses = self._fetch_github()
+                self._fetch_github()
+
+            if self.params.get('source', '') == 'youtube':
+                self._fetch_youtube(self.params.get('next_page_token', None))
 
             # TODO: Implement the function for Coursera. However, this function
             # may be handled by the backend server.

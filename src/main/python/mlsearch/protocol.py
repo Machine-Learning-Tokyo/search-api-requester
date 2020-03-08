@@ -25,7 +25,13 @@ class Protocol():
             'partners_v1', 'instructors_v1',
             
             # Source Flag
-            'source'
+            'source',
+
+            # Youtube
+            'video_id',
+            'channel_id', 'channel_title',
+            'live_broadcast_content', 'published_datetime',
+            'thumbnails',
         ]
         
         for param in kwargs:
@@ -54,6 +60,12 @@ class Protocol():
         self.instructors_v1 = kwargs.get('instructors_v1', None)
         self.source = kwargs.get('source', None)
         self.pwc_url = kwargs.get('pwc_url', None)
+        self.video_id = kwargs.get('video_id', None)
+        self.channel_id = kwargs.get('channel_id', None)
+        self.channel_title = kwargs.get('channel_title', None)
+        self.live_broadcast_content = kwargs.get('live_broadcast_content', None)
+        self.published_datetime = kwargs.get('published_datetime', None)
+        self.thumbnails = kwargs.get('thumbnails', dict())
     
     def to_JSON(self):
         """Transform the Protocol object to JSON object."""

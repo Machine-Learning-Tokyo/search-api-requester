@@ -38,6 +38,10 @@ Optional Parameters:
                         Paper with code repository password.
   -t GITHUB_ACC_TOKEN, --github_acc_token GITHUB_ACC_TOKEN
                         Github access token.
+  -yk YOUTUBE_DEV_KEY, --youtube_dev_key YOUTUBE_DEV_KEY
+                        Youtube developer key.
+  -np NEXT_PAGE_TOKEN, --next_page_token NEXT_PAGE_TOKEN
+                        Next page token for Youtube API.
 ```
 
 <hr>
@@ -51,4 +55,5 @@ api_request = APIRequest(source, query,
     init_idx, count)
 api_request.pwc_auth_info = ('user_name', 'password')
 api_request.github_acc_token = 'token'
+api_request.youtube_developer_key = 'you_key'
 ```
