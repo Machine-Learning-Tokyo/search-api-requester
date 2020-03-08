@@ -69,8 +69,8 @@ def main(event):
         response_msg = hp.response('Invalid parameters.', 400)
         return response_msg
 
-    except (ValueError, TypeError):
-        response_msg = hp.response('Invalid parameters.', 400)
+    except (ValueError, TypeError) as ex:
+        response_msg = hp.response(str(ex), 400)
         return response_msg
 
     except Exception as ex:
