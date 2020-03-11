@@ -41,7 +41,7 @@ def parse_parameters(event):
                             'query', 'init_idx',
                             'count', 'source',
                             'cookies', 'timestamp',
-                            'next_page_token')
+                            'y_next_page_token')
     """
     try:
         param = dict()
