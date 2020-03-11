@@ -85,7 +85,7 @@ if __name__ == "__main__":
         'source': args['source'],
         'cookies': args['cookies'],
         'timestamp': args['timestamp'],
-        'next_page_token': args['next_page_token']
+        'y_next_page_token': args['y_next_page_token']
     }
 
     if args['pwc_user']:
