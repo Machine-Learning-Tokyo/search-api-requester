@@ -235,7 +235,7 @@ class APIRequest():
                 self._fetch_github()
 
             if self.params.get('source', '') == 'youtube':
-                self._fetch_youtube(self.params.get('next_page_token', None))
+                self._fetch_youtube(self.params.get('y_next_page_token', None))
 
             # TODO: Implement the function for Coursera. However, this function
             # may be handled by the backend server.
