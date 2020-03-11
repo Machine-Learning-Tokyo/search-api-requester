@@ -173,7 +173,7 @@ class APIRequest():
 
         self.data['response_code'] = query_result.status_code
     
-    def _fetch_youtube(self, next_page_token=None) -> [Protocol]:
+    def _fetch_youtube(self, y_next_page_token=None) -> [Protocol]:
         """Fetch the Youtube Repository"""
         results = []
         youtube = googleapiclient.discovery.build(
