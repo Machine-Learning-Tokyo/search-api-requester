@@ -36,7 +36,7 @@ class APIRequest():
             'response_code': 201,
             'content': None,
             'has_next_page': False,
-            'next_page_token': None}
+            'y_next_page_token': None}
 
     @property
     def github_acc_token(self):
