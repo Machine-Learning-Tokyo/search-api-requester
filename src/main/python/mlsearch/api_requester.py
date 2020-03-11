@@ -219,7 +219,7 @@ class APIRequest():
                         ).get('thumbnails', None),
                 }
                 results.append(Protocol(data))
-            self.data['next_page_token'] = response.get('nextPageToken', None)
+            self.data['y_next_page_token'] = response.get('nextPageToken', None)
             self.data['content'] = [proto.to_JSON() for proto in results]
             self.data['has_next_page'] = response.get('pageInfo', dict({'totalResults':0})).get('totalResults', 0) > 0
         self.data['response_code'] = 200
