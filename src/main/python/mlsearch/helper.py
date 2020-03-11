@@ -51,7 +51,7 @@ def parse_parameters(event):
         param['source'] = event['source']
         param['cookies'] = event['cookies']
         param['timestamp'] = event['timestamp']
-        param['next_page_token'] = event['next_page_token']
+        param['y_next_page_token'] = event['y_next_page_token']
         
         if param['init_idx'] >= 0 and param['count'] > 0:
             return param
