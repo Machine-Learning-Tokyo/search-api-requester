@@ -11,7 +11,7 @@ import requests
 class APIRequest():
     """For handling the different Valid API requests."""
 
-    def __init__(self, source, query, init_idx, count, next_page_token=None):
+    def __init__(self, source, query, init_idx, count, y_next_page_token=None):
         """
         Initialization for the class.
 
