@@ -24,7 +24,7 @@ class APIRequest():
 
         self.params = {'query':query, 'init_idx':init_idx, 
                             'count':count, 'source': source,
-                            'next_page_token': next_page_token}
+                            'y_next_page_token': next_page_token}
         self.params_model = {'query':str, 'init_idx':int, 
                                   'count':int}
         # Load the configuration file
