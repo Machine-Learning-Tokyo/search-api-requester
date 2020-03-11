@@ -34,7 +34,7 @@ Optional Parameters:
 
   -u PWC_USER, --pwc_user PWC_USER
                         Paper with code repository user name.
-  -p PWC_PASSWORD, --pwc_password PWC_PASSWORD
+  -pp PWC_PASSWORD, --pwc_password PWC_PASSWORD
                         Paper with code repository password.
   -gt GITHUB_ACC_TOKEN, --github_acc_token GITHUB_ACC_TOKEN
                         Github access token.
