@@ -62,7 +62,7 @@ def main(event):
                     headers=headers,
                     optional_attributes={
                         'has_next_page': data.get('has_next_page', False),
-                        'next_page_token': data.get('next_page_token', None)})
+                        'next_page_token': data.get('y_next_page_token', None)})
 
                 return response_msg
 
