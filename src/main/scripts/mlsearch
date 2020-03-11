@@ -19,11 +19,11 @@ ap.add_argument('-c', '--count', required=True, help="Total number of results to
 ap.add_argument('-s', '--source', required=True, help="Source API to be looking for.")
 ap.add_argument('-ck', '--cookies', required=True, help="Cookies of current user.")
 ap.add_argument('-tm', '--timestamp', required=True, help="Timestamp of requesting API.")
-ap.add_argument('-u', '--pwc_user', required=False, help="Paper with code repository user name.")
-ap.add_argument('-p', '--pwc_password', required=False, help="Paper with code repository password.")
-ap.add_argument('-t', '--github_acc_token', required=False, help="Github access token.")
+ap.add_argument('-pu', '--pwc_user', required=False, help="Paper with code repository user name.")
+ap.add_argument('-pp', '--pwc_password', required=False, help="Paper with code repository password.")
+ap.add_argument('-gt', '--github_acc_token', required=False, help="Github access token.")
 ap.add_argument('-yk', '--youtube_dev_key', required=False, help="Youtube developer key.")
-ap.add_argument('-np', '--next_page_token', required=False, help="Next page token for Youtube API.")
+ap.add_argument('-yntp', '--next_page_token', required=False, help="Next page token for Youtube API.")
 args = vars(ap.parse_args())
 
 def main(event):
