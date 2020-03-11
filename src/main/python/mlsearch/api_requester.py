@@ -19,7 +19,7 @@ class APIRequest():
         :param  query:      The query for searching.
         :param  init_idx:   The initial pagination index.
         :param  count:      The number of records to be fetched.
-        :param  next_page_token: The current page token for youtube API.
+        :param  y_next_page_token: The current page token for youtube API.
         """
 
         self.params = {'query':query, 'init_idx':init_idx, 
