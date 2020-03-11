@@ -32,7 +32,7 @@ Required Parameters:
                         Timestamp of requesting API.
 Optional Parameters:
 
-  -u PWC_USER, --pwc_user PWC_USER
+  -pu PWC_USER, --pwc_user PWC_USER
                         Paper with code repository user name.
   -pp PWC_PASSWORD, --pwc_password PWC_PASSWORD
                         Paper with code repository password.
