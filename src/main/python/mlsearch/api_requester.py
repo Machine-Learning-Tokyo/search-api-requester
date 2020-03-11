@@ -186,7 +186,7 @@ class APIRequest():
             order=self._config.YOUTUBE_ORDER,
             q=self.params['query'],
             safeSearch=self._config.YOUTUBE_SAFESEARCH,
-            pageToken=next_page_token
+            pageToken=y_next_page_token
         )
         response = request.execute()
 
