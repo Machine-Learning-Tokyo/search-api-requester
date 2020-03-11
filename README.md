@@ -55,5 +55,5 @@ api_request = APIRequest(source, query,
     init_idx, count)
 api_request.pwc_auth_info = ('user_name', 'password')
 api_request.github_acc_token = 'token'
-api_request.youtube_developer_key = 'you_key'
+api_request.youtube_developer_key = 'your_key'
 ```
