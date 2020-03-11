@@ -40,7 +40,7 @@ Optional Parameters:
                         Github access token.
   -yk YOUTUBE_DEV_KEY, --youtube_dev_key YOUTUBE_DEV_KEY
                         Youtube developer key.
-  -np NEXT_PAGE_TOKEN, --next_page_token NEXT_PAGE_TOKEN
+  -ynpt NEXT_PAGE_TOKEN, --next_page_token NEXT_PAGE_TOKEN
                         Next page token for Youtube API.
 ```
 
