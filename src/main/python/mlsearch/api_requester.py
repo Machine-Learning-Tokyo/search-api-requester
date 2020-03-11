@@ -82,7 +82,6 @@ class APIRequest():
                 raise TypeError(
                     f'Invalid type for {item}. {typ} is expected but ' 
                     f'{type(self.params[item])} is given.')
-        
         if self.params['source'] not in self._config.VALID_API_SOURCE:
             raise ValueError(
                 f"Invalid value for {self.params['source']}. "
