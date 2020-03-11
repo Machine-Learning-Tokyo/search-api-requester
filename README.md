@@ -36,7 +36,7 @@ Optional Parameters:
                         Paper with code repository user name.
   -p PWC_PASSWORD, --pwc_password PWC_PASSWORD
                         Paper with code repository password.
-  -t GITHUB_ACC_TOKEN, --github_acc_token GITHUB_ACC_TOKEN
+  -gt GITHUB_ACC_TOKEN, --github_acc_token GITHUB_ACC_TOKEN
                         Github access token.
   -yk YOUTUBE_DEV_KEY, --youtube_dev_key YOUTUBE_DEV_KEY
                         Youtube developer key.
