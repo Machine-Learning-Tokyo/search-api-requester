@@ -48,7 +48,7 @@ def main(event):
                     params['query'], 
                     params['init_idx'], 
                     params['count'],
-                    params['next_page_token'])
+                    params['y_next_page_token'])
                 if 'pwc_user'in event and 'pwc_password' in event:
                     api_request.pwc_auth_info = (event['pwc_user'], event['pwc_password'])
                 if 'github_acc_token' in event:
