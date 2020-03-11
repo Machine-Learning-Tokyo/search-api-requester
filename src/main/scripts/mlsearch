@@ -38,7 +38,7 @@ def main(event):
             'query', 'init_idx',
             'count', 'source',
             'cookies', 'timestamp',
-            'next_page_token']
+            'y_next_page_token']
         response_msg = hp.response('success', 200)
         if hp.is_valid_parameters(event, param_names):
             params = hp.parse_parameters(event)
