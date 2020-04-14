@@ -217,6 +217,7 @@ class APIRequest():
                     'thumbnails': item.get(
                         'snippet',dict({'thumbnails': None})
                         ).get('thumbnails', None),
+                    'source': self.params.get('source', ''),
                 }
                 results.append(Protocol(data))
             self.data['y_next_page_token'] = response.get('nextPageToken', None)
