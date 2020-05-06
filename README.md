@@ -42,6 +42,8 @@ Optional Parameters:
                         Youtube developer key.
   -ynpt NEXT_PAGE_TOKEN, --y_next_page_token NEXT_PAGE_TOKEN
                         Next page token for Youtube API.
+  -yo Y_QUERY_ORDER, --y_query_order Y_QUERY_ORDER
+                        Youtube Query Order.
 ```
 
 <hr>
