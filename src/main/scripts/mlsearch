@@ -42,7 +42,7 @@ ap.add_argument(
     help="Next page token for Youtube API.",
 )
 ap.add_argument(
-    "-yo", "--youtube_query_order", required=False, help="Youtube Query Order."
+    "-yo", "--y_query_order", required=False, help="Youtube Query Order."
 )
 args = vars(ap.parse_args())
 
@@ -84,8 +84,8 @@ def main(event):
                     api_request.github_acc_token = event["github_acc_token"]
                 if "youtube_developer_key" in event:
                     api_request.youtube_developer_key = event["youtube_developer_key"]
-                if "youtube_query_order" in event:
-                    api_request.youtube_query_order = event["youtube_query_order"]
+                if "y_query_order" in event:
+                    api_request.youtube_query_order = event["y_query_order"]
                 data = api_request.fetch_data()
                 response_msg = hp.response(
                     message=data.get("content", ""),
@@ -131,8 +131,8 @@ if __name__ == "__main__":
         event["github_acc_token"] = args["github_acc_token"]
     if args["youtube_dev_key"]:
         event["youtube_developer_key"] = args["youtube_dev_key"]
-    if args["youtube_query_order"]:
-        event["youtube_query_order"] = args["youtube_query_order"]
+    if args["y_query_order"]:
+        event["y_query_order"] = args["y_query_order"]
     result = main(event)
     pp = pprint.PrettyPrinter(indent=2)
     pp.pprint(result)
