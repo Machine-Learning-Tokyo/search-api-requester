@@ -45,6 +45,15 @@ class APIRequest:
         }
 
     @property
+    def youtube_query_order(self):
+        return self._config.YOUTUBE_ORDER
+
+    @youtube_query_order.setter
+    def youtube_query_order(self, youtube_order):
+        if youtube_order:
+            self._config.YOUTUBE_ORDER = youtube_order
+
+    @property
     def github_acc_token(self):
         return self._config.GITHUB_ACC_TOKEN
 
@@ -217,6 +226,12 @@ class APIRequest:
     def _fetch_youtube(self, y_next_page_token=None) -> [Protocol]:
         """Fetch the Youtube Repository"""
         results = []
+        input_query = str(self.params["query"]).lower().strip()
+        user_query = input_query
+
+        if not self._config.YOUTUBE_FIX_KEYWORD.strip() in user_query:
+            user_query = input_query + self._config.YOUTUBE_QUERY_FILTER
+
         youtube = googleapiclient.discovery.build(
             self._config.YOUTUBE_SERVICE_NAME,
             self._config.YOUTUBE_API_VERSION,
@@ -226,7 +241,7 @@ class APIRequest:
             part=self._config.YOUTUBE_PART,
             maxResults=self.params["count"],
             order=self._config.YOUTUBE_ORDER,
-            q=self.params["query"],
+            q=user_query,
             safeSearch=self._config.YOUTUBE_SAFESEARCH,
             pageToken=y_next_page_token,
         )
@@ -234,6 +249,10 @@ class APIRequest:
 
         if "items" in response and len(response["items"]) > 0:
             for item in response["items"]:
+                # Skip if the video id is null
+                if not item.get("id", dict({"videoId": None})).get("videoId", None):
+                    continue
+
                 data = {
                     "video_id": self._unescape(
                         item.get("id", dict({"videoId": None})).get("videoId", None)
@@ -282,6 +301,7 @@ class APIRequest:
                 )
                 > 0
             )
+            self.data["y_query_order"] = self._config.YOUTUBE_ORDER
         self.data["response_code"] = 200
 
     def fetch_data(self) -> json:
@@ -295,6 +315,11 @@ class APIRequest:
                 self._fetch_github()
 
             if self.params.get("source", "") == "youtube":
+                if not self._config.YOUTUBE_ORDER in self._config.VALID_YOUTUBE_ORDER:
+                    self.data["response_code"] = 400
+                    self.data["content"] = "Invalid Youtube Query Order."
+                    return self.data
+
                 self._fetch_youtube(self.params.get("y_next_page_token", None))
 
             # TODO: Implement the function for Coursera. However, this function
