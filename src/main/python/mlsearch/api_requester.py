@@ -115,7 +115,7 @@ class APIRequest:
 
     def _unescape(self, text):
         """Unescape Html Script."""
-        if text:
+        if text and isinstance(text, str):
             return html.unescape(text)
         return text
 
