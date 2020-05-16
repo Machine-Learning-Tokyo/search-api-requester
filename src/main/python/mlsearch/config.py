@@ -21,7 +21,15 @@ class Config(object):
     # Youtube configuration
     YOUTUBE_SERVICE_NAME = os.environ.get("YOUTUBE_SERVICE_NAME") or "youtube"
     YOUTUBE_API_VERSION = os.environ.get("YOUTUBE_API_VERSION") or "v3"
-    YOUTUBE_DEVELOPER_KEY = os.environ.get("YOUTUBE_DEVELOPER_KEY") or None
+    # Parsing Youtube Keys
+    YOUTUBE_DEVELOPER_KEY = list()
+    developer_key = os.environ.get("YOUTUBE_DEVELOPER_KEY")
+    if isinstance(developer_key, list):
+        YOUTUBE_DEVELOPER_KEY = developer_key
+    elif isinstance(developer_key, str) and "," in developer_key:
+        YOUTUBE_DEVELOPER_KEY = developer_key.strip().split(",")
+    elif developer_key and isinstance(developer_key, str):
+        YOUTUBE_DEVELOPER_KEY.append(developer_key)
     YOUTUBE_ORDER = os.environ.get("YOUTUBE_ORDER") or "relevance"
     YOUTUBE_SAFESEARCH = os.environ.get("YOUTUBE_SAFESEARCH") or "strict"
     YOUTUBE_PART = os.environ.get("YOUTUBE_PART") or "snippet"
