@@ -14,7 +14,7 @@ class Config(object):
     # Github configuration
     GITHUB_ACC_TOKEN = os.environ.get("GITHUB_ACC_TOKEN") or None
     GITHUB_URL = os.environ.get("GITHUB_URL") or "in:readme+in:description"
-
+    GITHUB_PER_PAGE = os.environ.get("PER_PAGE") or 10
     # AIP Source
     VALID_API_SOURCE = ["paperwithcode", "github", "coursera", "youtube"]
 

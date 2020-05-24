@@ -11,10 +11,12 @@ import requests
 import html
 import random
 import collections
+import math
 
 # import scholarly
 
 ErrorType = collections.namedtuple("ErrorType", "reason status")
+
 
 class APIRequest:
     """For handling the different Valid API requests."""
@@ -140,8 +142,13 @@ class APIRequest:
 
     def _fetch_github(self) -> [Protocol]:
         """Fetch Github Repository"""
+        per_page = self._config.GITHUB_PER_PAGE
+        github = Github(self._config.GITHUB_ACC_TOKEN, per_page=per_page)
 
-        github = Github(self._config.GITHUB_ACC_TOKEN)
+        skip_page = math.floor(self.params["init_idx"] / per_page)
+        total_page = math.ceil(
+            (self.params["init_idx"] + self.params["count"]) / per_page
+        )
         query = "+".join([self.params["query"], self._config.GITHUB_URL])
         responses = github.search_repositories(query, "stars", "desc")
         results = []
@@ -149,12 +156,19 @@ class APIRequest:
         if not self._is_valid_pagination(responses.totalCount):
             return
 
-        for response in responses[
-            self.params["init_idx"] : min(
-                self.params["init_idx"] + self.params["count"], responses.totalCount
-            )
-        ]:
+        paginated_responses = list()
+        for i in range(skip_page + 1, total_page + 1):
+            paginated_responses.extend(responses.get_page(i))
 
+        first_slot_items = per_page - (self.params["init_idx"] % per_page)
+        end_slot_items = per_page - (
+            (total_page * per_page) - (self.params["count"] + self.params["init_idx"])
+        )
+
+        start_idx = per_page - first_slot_items
+        end_idx = (len(paginated_responses) - per_page) + end_slot_items
+
+        for response in paginated_responses[start_idx:end_idx]:
             data = {
                 "repository_url": self._unescape(
                     response.clone_url.replace(".git", "")
@@ -252,9 +266,7 @@ class APIRequest:
             sampled_dev_key = random.choice(self._config.YOUTUBE_DEVELOPER_KEY)
 
         if not sampled_dev_key:
-            auth_error = ErrorType(
-                reason="Empty YouTube Developer Key.", status="400"
-            )
+            auth_error = ErrorType(reason="Empty YouTube Developer Key.", status="400")
             raise HttpError(auth_error, str.encode("YouTube Developer Key Required."))
 
         youtube = googleapiclient.discovery.build(
