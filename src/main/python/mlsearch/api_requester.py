@@ -10,9 +10,11 @@ import json
 import requests
 import html
 import random
+import collections
 
 # import scholarly
 
+ErrorType = collections.namedtuple("ErrorType", "reason status")
 
 class APIRequest:
     """For handling the different Valid API requests."""
@@ -248,6 +250,13 @@ class APIRequest:
         sampled_dev_key = None
         if len(self._config.YOUTUBE_DEVELOPER_KEY) > 0:
             sampled_dev_key = random.choice(self._config.YOUTUBE_DEVELOPER_KEY)
+
+        if not sampled_dev_key:
+            auth_error = ErrorType(
+                reason="Empty YouTube Developer Key.", status="400"
+            )
+            raise HttpError(auth_error, str.encode("YouTube Developer Key Required."))
+
         youtube = googleapiclient.discovery.build(
             self._config.YOUTUBE_SERVICE_NAME,
             self._config.YOUTUBE_API_VERSION,
