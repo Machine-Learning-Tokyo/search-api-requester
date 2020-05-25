@@ -2,13 +2,19 @@ from mlsearch.config import Config
 from mlsearch.protocol import Protocol
 from github import Github
 from requests.auth import HTTPBasicAuth
+from github.GithubException import BadCredentialsException
+from github.GithubException import RateLimitExceededException
+from googleapiclient.errors import HttpError
 import googleapiclient.discovery
 import json
 import requests
 import html
+import random
+import collections
 
 # import scholarly
 
+ErrorType = collections.namedtuple("ErrorType", "reason status")
 
 class APIRequest:
     """For handling the different Valid API requests."""
@@ -45,6 +51,15 @@ class APIRequest:
         }
 
     @property
+    def youtube_query_order(self):
+        return self._config.YOUTUBE_ORDER
+
+    @youtube_query_order.setter
+    def youtube_query_order(self, youtube_order):
+        if youtube_order:
+            self._config.YOUTUBE_ORDER = youtube_order
+
+    @property
     def github_acc_token(self):
         return self._config.GITHUB_ACC_TOKEN
 
@@ -59,8 +74,12 @@ class APIRequest:
 
     @youtube_developer_key.setter
     def youtube_developer_key(self, developer_key):
-        if developer_key:
+        if isinstance(developer_key, list):
             self._config.YOUTUBE_DEVELOPER_KEY = developer_key
+        elif isinstance(developer_key, str) and "," in developer_key:
+            self._config.YOUTUBE_DEVELOPER_KEY = developer_key.strip().split(",")
+        elif developer_key and isinstance(developer_key, str):
+            self._config.YOUTUBE_DEVELOPER_KEY.append(developer_key)
 
     @property
     def pwc_auth_info(self):
@@ -211,29 +230,55 @@ class APIRequest:
                 results.append(Protocol(data))
 
             self.data["content"] = [proto.to_JSON() for proto in results]
-
-        self.data["response_code"] = query_result.status_code
+        else:
+            print(str(query_result.status_code), query_result.content)
+            self.data["response_code"] = query_result.status_code
+            self.data["content"] = (
+                "There is an error in fetching data from PWC server."
+                f" {json.loads(query_result.content).get('error')}"
+            )
 
     def _fetch_youtube(self, y_next_page_token=None) -> [Protocol]:
         """Fetch the Youtube Repository"""
         results = []
+        input_query = str(self.params["query"]).lower().strip()
+        user_query = input_query
+
+        if not self._config.YOUTUBE_FIX_KEYWORD.strip() in user_query:
+            user_query = input_query + self._config.YOUTUBE_QUERY_FILTER
+
+        sampled_dev_key = None
+        if not len(self._config.YOUTUBE_DEVELOPER_KEY) > 0:
+            auth_error = ErrorType(
+                reason="Empty YouTube Developer Key.", status="400"
+            )
+            raise HttpError(auth_error, str.encode("YouTube Developer Key Required."))
+
+        sampled_dev_key = random.choice(self._config.YOUTUBE_DEVELOPER_KEY)
+
         youtube = googleapiclient.discovery.build(
             self._config.YOUTUBE_SERVICE_NAME,
             self._config.YOUTUBE_API_VERSION,
-            developerKey=self._config.YOUTUBE_DEVELOPER_KEY,
+            developerKey=sampled_dev_key,
         )
+
         request = youtube.search().list(
             part=self._config.YOUTUBE_PART,
             maxResults=self.params["count"],
             order=self._config.YOUTUBE_ORDER,
-            q=self.params["query"],
+            q=user_query,
             safeSearch=self._config.YOUTUBE_SAFESEARCH,
-            pageToken=y_next_page_token,
+            # Disabled the next page token due to limitation of api access.
+            # pageToken=y_next_page_token,
         )
         response = request.execute()
 
         if "items" in response and len(response["items"]) > 0:
             for item in response["items"]:
+                # Skip if the video id is null
+                if not item.get("id", dict({"videoId": None})).get("videoId", None):
+                    continue
+
                 data = {
                     "video_id": self._unescape(
                         item.get("id", dict({"videoId": None})).get("videoId", None)
@@ -274,14 +319,16 @@ class APIRequest:
                     "source": self.params.get("source", ""),
                 }
                 results.append(Protocol(data))
-            self.data["y_next_page_token"] = response.get("nextPageToken", None)
+            # self.data["y_next_page_token"] = response.get("nextPageToken", None)
             self.data["content"] = [proto.to_JSON() for proto in results]
-            self.data["has_next_page"] = (
-                response.get("pageInfo", dict({"totalResults": 0})).get(
-                    "totalResults", 0
-                )
-                > 0
-            )
+            # self.data["has_next_page"] = (
+            #     response.get("pageInfo", dict({"totalResults": 0})).get(
+            #         "totalResults", 0
+            #     )
+            #     > 0
+            # )
+            self.data["has_next_page"] = False
+            self.data["y_query_order"] = self._config.YOUTUBE_ORDER
         self.data["response_code"] = 200
 
     def fetch_data(self) -> json:
@@ -292,10 +339,28 @@ class APIRequest:
                 self._fetch_paperwithcode()
 
             if self.params.get("source", "") == "github":
-                self._fetch_github()
+                try:
+                    self._fetch_github()
+                except BadCredentialsException:
+                    self.data["response_code"] = 400
+                    self.data["content"] = "Invalid Github developer key."
+                except RateLimitExceededException:
+                    self.data["response_code"] = 503
+                    self.data["content"] = "Access rate limitation reached."
 
             if self.params.get("source", "") == "youtube":
-                self._fetch_youtube(self.params.get("y_next_page_token", None))
+                if not self._config.YOUTUBE_ORDER in self._config.VALID_YOUTUBE_ORDER:
+                    self.data["response_code"] = 400
+                    self.data["content"] = "Invalid Youtube Query Order."
+                    return self.data
+                try:
+                    self._fetch_youtube(self.params.get("y_next_page_token", None))
+                except HttpError as ex:
+                    print(str(ex))
+                    self.data["response_code"] = 400
+                    self.data[
+                        "content"
+                    ] = "Seems there is an authentication error with Youtube server."
 
             # TODO: Implement the function for Coursera. However, this function
             # may be handled by the backend server.
@@ -303,7 +368,8 @@ class APIRequest:
                 pass
 
         except Exception as ex:
+            print(str(ex))
+            self.data["content"] = "Oops... Something has gone wrong in server."
             self.data["response_code"] = 500
-            self.data["content"] = str(ex)
 
         return self.data

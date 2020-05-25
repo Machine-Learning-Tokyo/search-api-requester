@@ -6,67 +6,101 @@ import os
 import json
 
 # For debugging purpose
-if 'mlsearch' not in sys.modules:
-    sys.path.append(os.path.join(os.getcwd(), 'src/main/python'))
+if "mlsearch" not in sys.modules:
+    sys.path.append(os.path.join(os.getcwd(), "src/main/python"))
 
 from mlsearch.api_requester import APIRequest
 from mlsearch import helper as hp
 
 ap = argparse.ArgumentParser()
-ap.add_argument('-q', '--query', required=True, help="Keyword for searching.")
-ap.add_argument('-i', '--init_idx', required=True, help="Initial index for pagination.")
-ap.add_argument('-c', '--count', required=True, help="Total number of results to be fetched.")
-ap.add_argument('-s', '--source', required=True, help="Source API to be looking for.")
-ap.add_argument('-ck', '--cookies', required=True, help="Cookies of current user.")
-ap.add_argument('-tm', '--timestamp', required=True, help="Timestamp of requesting API.")
-ap.add_argument('-pu', '--pwc_user', required=False, help="Paper with code repository user name.")
-ap.add_argument('-pp', '--pwc_password', required=False, help="Paper with code repository password.")
-ap.add_argument('-gt', '--github_acc_token', required=False, help="Github access token.")
-ap.add_argument('-yk', '--youtube_dev_key', required=False, help="Youtube developer key.")
-ap.add_argument('-yntp', '--y_next_page_token', required=False, help="Next page token for Youtube API.")
+ap.add_argument("-q", "--query", required=True, help="Keyword for searching.")
+ap.add_argument("-i", "--init_idx", required=True, help="Initial index for pagination.")
+ap.add_argument(
+    "-c", "--count", required=True, help="Total number of results to be fetched."
+)
+ap.add_argument("-s", "--source", required=True, help="Source API to be looking for.")
+ap.add_argument("-ck", "--cookies", required=True, help="Cookies of current user.")
+ap.add_argument(
+    "-tm", "--timestamp", required=True, help="Timestamp of requesting API."
+)
+ap.add_argument(
+    "-pu", "--pwc_user", required=False, help="Paper with code repository user name."
+)
+ap.add_argument(
+    "-pp", "--pwc_password", required=False, help="Paper with code repository password."
+)
+ap.add_argument(
+    "-gt", "--github_acc_token", required=False, help="Github access token."
+)
+ap.add_argument(
+    "-yk", "--y_dev_key", required=False, help="Youtube developer key."
+)
+ap.add_argument(
+    "-yntp",
+    "--y_next_page_token",
+    required=False,
+    help="Next page token for Youtube API.",
+)
+ap.add_argument(
+    "-yo", "--y_query_order", required=False, help="Youtube Query Order."
+)
 args = vars(ap.parse_args())
+
 
 def main(event):
     headers = {
-            'Access-Control-Allow-Origin': '*',
-            'X-Requested-With': '*',
-            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with',
-            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
-        }
+        "Access-Control-Allow-Origin": "*",
+        "X-Requested-With": "*",
+        "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+    }
     try:
         param_names = [
-            'query', 'init_idx',
-            'count', 'source',
-            'cookies', 'timestamp',
-            'y_next_page_token']
-        response_msg = hp.response('success', 200)
+            "query",
+            "init_idx",
+            "count",
+            "source",
+            "cookies",
+            "timestamp",
+            "y_next_page_token",
+        ]
+        response_msg = hp.response("success", 200)
         if hp.is_valid_parameters(event, param_names):
             params = hp.parse_parameters(event)
             if params.values():
                 api_request = APIRequest(
-                    params['source'], 
-                    params['query'], 
-                    params['init_idx'], 
-                    params['count'],
-                    params['y_next_page_token'])
-                if 'pwc_user'in event and 'pwc_password' in event:
-                    api_request.pwc_auth_info = (event['pwc_user'], event['pwc_password'])
-                if 'github_acc_token' in event:
-                    api_request.github_acc_token = event['github_acc_token']
-                if 'youtube_developer_key' in event:
-                    api_request.youtube_developer_key = event['youtube_developer_key']
+                    params["source"],
+                    params["query"],
+                    params["init_idx"],
+                    params["count"],
+                    params["y_next_page_token"],
+                )
+                if "pwc_user" in event and "pwc_password" in event:
+                    api_request.pwc_auth_info = (
+                        event["pwc_user"],
+                        event["pwc_password"],
+                    )
+                if "github_acc_token" in event:
+                    api_request.github_acc_token = event["github_acc_token"]
+                if "y_dev_key" in event:
+                    api_request.youtube_developer_key = event["y_dev_key"]
+                if "y_query_order" in event:
+                    api_request.youtube_query_order = event["y_query_order"]
                 data = api_request.fetch_data()
                 response_msg = hp.response(
-                    message=data.get('content',''),
-                    status_code=data.get('response_code'),
+                    message=data.get("content", ""),
+                    status_code=data.get("response_code"),
                     headers=headers,
                     optional_attributes={
-                        'has_next_page': data.get('has_next_page', False),
-                        'y_next_page_token': data.get('y_next_page_token', None)})
+                        "has_next_page": data.get("has_next_page", False),
+                        "y_next_page_token": data.get("y_next_page_token", None),
+                        "y_query_order": data.get("y_query_order", None)
+                    },
+                )
 
                 return response_msg
 
-        response_msg = hp.response('Invalid parameters.', 400)
+        response_msg = hp.response("Invalid parameters.", 400)
         return response_msg
 
     except (ValueError, TypeError) as ex:
@@ -77,26 +111,28 @@ def main(event):
         response_msg = hp.response(str(ex), 500)
         return response_msg
 
+
 if __name__ == "__main__":
     event = {
-        'query': args['query'],
-        'init_idx': args['init_idx'],
-        'count': args['count'],
-        'source': args['source'],
-        'cookies': args['cookies'],
-        'timestamp': args['timestamp'],
-        'y_next_page_token': args['y_next_page_token']
+        "query": args["query"],
+        "init_idx": args["init_idx"],
+        "count": args["count"],
+        "source": args["source"],
+        "cookies": args["cookies"],
+        "timestamp": args["timestamp"],
+        "y_next_page_token": args["y_next_page_token"],
     }
 
-    if args['pwc_user']:
-        event['pwc_user'] = args['pwc_user']
-    if args['pwc_password']:
-        event['pwc_password'] = args['pwc_password']
-    if args['github_acc_token']:
-        event['github_acc_token'] = args['github_acc_token']
-    if args['youtube_dev_key']:
-        event['youtube_developer_key'] = args['youtube_dev_key']
-
+    if args["pwc_user"]:
+        event["pwc_user"] = args["pwc_user"]
+    if args["pwc_password"]:
+        event["pwc_password"] = args["pwc_password"]
+    if args["github_acc_token"]:
+        event["github_acc_token"] = args["github_acc_token"]
+    if args["y_dev_key"]:
+        event["y_dev_key"] = args["y_dev_key"]
+    if args["y_query_order"]:
+        event["y_query_order"] = args["y_query_order"]
     result = main(event)
     pp = pprint.PrettyPrinter(indent=2)
     pp.pprint(result)
