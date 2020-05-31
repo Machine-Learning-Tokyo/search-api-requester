@@ -8,13 +8,14 @@ class Config(object):
     PWC_USER_NAME = os.environ.get("PWC_USER_NAME") or ""
     PWC_PASSWORD = os.environ.get("PWC_PASSWORD") or ""
     PWC_URL = (
-        os.environ.get("PWC_URL") or "https://paperswithcode.com/api/v0/search/?q="
+        os.environ.get("PWC_URL")
+        or "https://paperswithcode.com/api/v0/search/?q="
     )
 
     # Github configuration
     GITHUB_ACC_TOKEN = os.environ.get("GITHUB_ACC_TOKEN") or None
     GITHUB_URL = os.environ.get("GITHUB_URL") or "in:readme+in:description"
-    GITHUB_PER_PAGE = os.environ.get("PER_PAGE") or 10
+    GITHUB_PER_PAGE = os.environ.get("ITEM_PER_PAGE") or 10
     # AIP Source
     VALID_API_SOURCE = ["paperwithcode", "github", "coursera", "youtube"]
 
@@ -43,4 +44,3 @@ class Config(object):
         # "videoCount", # This is for channel only
         "viewCount",
     ]
-
