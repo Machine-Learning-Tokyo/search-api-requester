@@ -1,0 +1,7 @@
+/src/main/python/mlsearch/__pycache__
+*/unittest/python/__pycache__
+/target
+__pycache__
+.coverage
+.DS_Store
+.vscode
