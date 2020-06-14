@@ -11,10 +11,12 @@ import requests
 import html
 import random
 import collections
+import math
 
 # import scholarly
 
 ErrorType = collections.namedtuple("ErrorType", "reason status")
+
 
 class APIRequest:
     """For handling the different Valid API requests."""
@@ -77,7 +79,9 @@ class APIRequest:
         if isinstance(developer_key, list):
             self._config.YOUTUBE_DEVELOPER_KEY = developer_key
         elif isinstance(developer_key, str) and "," in developer_key:
-            self._config.YOUTUBE_DEVELOPER_KEY = developer_key.strip().split(",")
+            self._config.YOUTUBE_DEVELOPER_KEY = developer_key.strip().split(
+                ","
+            )
         elif developer_key and isinstance(developer_key, str):
             self._config.YOUTUBE_DEVELOPER_KEY.append(developer_key)
 
@@ -108,7 +112,9 @@ class APIRequest:
         """Validate user input data."""
 
         for item, typ in self.params_model.items():
-            if item in self.params.keys() and not typ == type(self.params[item]):
+            if item in self.params.keys() and not typ == type(
+                self.params[item]
+            ):
                 raise TypeError(
                     f"Invalid type for {item}. {typ} is expected but "
                     f"{type(self.params[item])} is given."
@@ -140,8 +146,13 @@ class APIRequest:
 
     def _fetch_github(self) -> [Protocol]:
         """Fetch Github Repository"""
+        item_per_page = self._config.GITHUB_PER_PAGE
+        github = Github(self._config.GITHUB_ACC_TOKEN, per_page=item_per_page)
 
-        github = Github(self._config.GITHUB_ACC_TOKEN)
+        skip_page = math.floor(self.params["init_idx"] / item_per_page)
+        total_page = math.ceil(
+            (self.params["init_idx"] + self.params["count"]) / item_per_page
+        )
         query = "+".join([self.params["query"], self._config.GITHUB_URL])
         responses = github.search_repositories(query, "stars", "desc")
         results = []
@@ -149,12 +160,22 @@ class APIRequest:
         if not self._is_valid_pagination(responses.totalCount):
             return
 
-        for response in responses[
-            self.params["init_idx"] : min(
-                self.params["init_idx"] + self.params["count"], responses.totalCount
-            )
-        ]:
+        paginated_responses = list()
+        for i in range(skip_page + 1, total_page + 1):
+            paginated_responses.extend(responses.get_page(i))
 
+        first_slot_items = item_per_page - (
+            self.params["init_idx"] % item_per_page
+        )
+        end_slot_items = item_per_page - (
+            (total_page * item_per_page)
+            - (self.params["count"] + self.params["init_idx"])
+        )
+
+        start_idx = item_per_page - first_slot_items
+        end_idx = (len(paginated_responses) - item_per_page) + end_slot_items
+
+        for response in paginated_responses[start_idx:end_idx]:
             data = {
                 "repository_url": self._unescape(
                     response.clone_url.replace(".git", "")
@@ -184,7 +205,9 @@ class APIRequest:
         url = f"{self._config.PWC_URL}{self.params['query']}"
         query_result = requests.get(
             url,
-            auth=HTTPBasicAuth(self._config.PWC_USER_NAME, self._config.PWC_PASSWORD),
+            auth=HTTPBasicAuth(
+                self._config.PWC_USER_NAME, self._config.PWC_PASSWORD
+            ),
         )
 
         if query_result.status_code == 200:
@@ -202,7 +225,9 @@ class APIRequest:
             for item in content:
                 data = {
                     "title": self._unescape(item.get("paper_title", None)),
-                    "description": self._unescape(item.get("paper_abstract", None)),
+                    "description": self._unescape(
+                        item.get("paper_abstract", None)
+                    ),
                     "paper_url": self._unescape(item.get("paper_url", None)),
                     "num_of_implementations": self._unescape(
                         item.get("number_of_implementations", None)
@@ -211,7 +236,9 @@ class APIRequest:
                     "paper_conference": self._unescape(
                         item.get("paper_conference", None)
                     ),
-                    "repository_url": self._unescape(item.get("repository_url", None)),
+                    "repository_url": self._unescape(
+                        item.get("repository_url", None)
+                    ),
                     "repository_name": self._unescape(
                         item.get("repository_name", None)
                     ),
@@ -252,7 +279,11 @@ class APIRequest:
             auth_error = ErrorType(
                 reason="Empty YouTube Developer Key.", status="400"
             )
-            raise HttpError(auth_error, str.encode("YouTube Developer Key Required."))
+            raise HttpError(
+                auth_error, str.encode("YouTube Developer Key Required.")
+            )
+
+        sampled_dev_key = random.choice(self._config.YOUTUBE_DEVELOPER_KEY)
 
         sampled_dev_key = random.choice(self._config.YOUTUBE_DEVELOPER_KEY)
 
@@ -276,15 +307,21 @@ class APIRequest:
         if "items" in response and len(response["items"]) > 0:
             for item in response["items"]:
                 # Skip if the video id is null
-                if not item.get("id", dict({"videoId": None})).get("videoId", None):
+                if not item.get("id", dict({"videoId": None})).get(
+                    "videoId", None
+                ):
                     continue
 
                 data = {
                     "video_id": self._unescape(
-                        item.get("id", dict({"videoId": None})).get("videoId", None)
+                        item.get("id", dict({"videoId": None})).get(
+                            "videoId", None
+                        )
                     ),
                     "title": self._unescape(
-                        item.get("snippet", dict({"title": None})).get("title", None)
+                        item.get("snippet", dict({"title": None})).get(
+                            "title", None
+                        )
                     ),
                     "description": self._unescape(
                         item.get("snippet", dict({"description": None})).get(
@@ -302,9 +339,9 @@ class APIRequest:
                         )
                     ),
                     "live_broadcast_content": self._unescape(
-                        item.get("snippet", dict({"liveBroadcastContent": None})).get(
-                            "liveBroadcastContent", None
-                        )
+                        item.get(
+                            "snippet", dict({"liveBroadcastContent": None})
+                        ).get("liveBroadcastContent", None)
                     ),
                     "published_datetime": self._unescape(
                         item.get("snippet", dict({"publishedAt": None})).get(
@@ -349,12 +386,17 @@ class APIRequest:
                     self.data["content"] = "Access rate limitation reached."
 
             if self.params.get("source", "") == "youtube":
-                if not self._config.YOUTUBE_ORDER in self._config.VALID_YOUTUBE_ORDER:
+                if (
+                    not self._config.YOUTUBE_ORDER
+                    in self._config.VALID_YOUTUBE_ORDER
+                ):
                     self.data["response_code"] = 400
                     self.data["content"] = "Invalid Youtube Query Order."
                     return self.data
                 try:
-                    self._fetch_youtube(self.params.get("y_next_page_token", None))
+                    self._fetch_youtube(
+                        self.params.get("y_next_page_token", None)
+                    )
                 except HttpError as ex:
                     print(str(ex))
                     self.data["response_code"] = 400
